@@ -6,4 +6,4 @@ gradle
 *.class
 *.iml
 *.ipr
-
+gradle.properties

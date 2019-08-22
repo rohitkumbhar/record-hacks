@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'maven-publish'
 }
 
 sourceCompatibility = 1.8
@@ -15,34 +14,91 @@ dependencies {
 
 allprojects {
     apply plugin: 'java'
-    apply plugin: 'maven-publish'
+    apply plugin: 'maven'
     group 'net.kumbhar.dx'
-    version '1.0-SNAPSHOT'
+    version '1.0'
 }
 
 rootProject.subprojects {
-
     jar {
         archivesBaseName = "record-hacks-".concat(project.name)
     }
+}
 
-    task sourceJar(type: Jar) {
-        from sourceSets.main.allJava
+project(':annotations') {
+
+    apply plugin: 'maven'
+    apply plugin: 'signing'
+
+    task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+        from javadoc
     }
 
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                artifactId "record-hacks-".concat(project.name)
-                artifact sourceJar {
-                    classifier "sources"
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives javadocJar, sourcesJar
+    }
+
+    signing {
+        useGpgCmd()
+        sign configurations.archives
+    }
+
+    group = "net.kumbhar.dx"
+    archivesBaseName = "record-hacks-".concat(project.name)
+    version = "1.0"
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: project.property('ossrhUsername'), password: project.property('ossrhPassword'))
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: project.property('ossrhUsername'), password: project.property('ossrhPassword'))
+                }
+
+                pom.project {
+                    name 'record-hacks-annotations'
+                    packaging 'jar'
+                    // optionally artifactId can be defined here
+                    description 'record-hacks is a Java library that will help you track "creative solutions" in your code.'
+                    url 'https://github.com/rohitkumbhar/record-hacks'
+
+                    scm {
+                        connection 'scm:git:https://github.com/rohitkumbhar/record-hacks.git'
+                        developerConnection 'scm:git:https://github.com/rohitkumbhar/record-hacks.git'
+                        url 'https://github.com/rohitkumbhar/record-hacks'
+                    }
+
+                    licenses {
+                        license {
+                            name 'MIT License'
+                            url 'https://github.com/rohitkumbhar/record-hacks/blob/master/LICENSE'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'rohitkumbhar'
+                            name 'Rohit Kumbhar'
+                            email 'rohit@kumbhar.net'
+                        }
+                    }
                 }
             }
         }
     }
-}
 
+}
 
 project(':tests') {
     dependencies {
