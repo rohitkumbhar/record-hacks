@@ -12,7 +12,13 @@ These annotations are will be discarded by the compiler after processing and wil
 ## Usage
 
 ### Import the library
-Maven repo setup in progress...
+```xml
+<dependency>
+  <groupId>net.kumbhar.dx</groupId>
+  <artifactId>record-hacks-annotations</artifactId>
+  <version>1.0</version>
+</dependency>
+```
 
 ### In your code
 ```java
