@@ -2,106 +2,103 @@ plugins {
     id 'java'
 }
 
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-
 allprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven'
-    group 'net.kumbhar.dx'
-    version '1.0'
+    group = 'net.kumbhar.dx'
+    version = '1.0'
+
+    repositories {
+        mavenCentral()
+    }
 }
 
-rootProject.subprojects {
-    jar {
-        archivesBaseName = "record-hacks-".concat(project.name)
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    base {
+        archivesName = "record-hacks-${project.name}"
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    dependencies {
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }
 
 project(':annotations') {
+    apply plugin: 'java-library'
 
-    apply plugin: 'maven'
-    apply plugin: 'signing'
-
-    task javadocJar(type: Jar) {
-        classifier = 'javadoc'
-        from javadoc
-    }
-
-    task sourcesJar(type: Jar) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    artifacts {
-        archives javadocJar, sourcesJar
-    }
-
-    signing {
-        useGpgCmd()
-        sign configurations.archives
-    }
-
-    group = "net.kumbhar.dx"
-    archivesBaseName = "record-hacks-".concat(project.name)
-    version = "1.0"
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: project.property('ossrhUsername'), password: project.property('ossrhPassword'))
-                }
-
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: project.property('ossrhUsername'), password: project.property('ossrhPassword'))
-                }
-
-                pom.project {
-                    name 'record-hacks-annotations'
-                    packaging 'jar'
-                    // optionally artifactId can be defined here
-                    description 'record-hacks is a Java library that will help you track "creative solutions" in your code.'
-                    url 'https://github.com/rohitkumbhar/record-hacks'
-
-                    scm {
-                        connection 'scm:git:https://github.com/rohitkumbhar/record-hacks.git'
-                        developerConnection 'scm:git:https://github.com/rohitkumbhar/record-hacks.git'
-                        url 'https://github.com/rohitkumbhar/record-hacks'
-                    }
-
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                pom {
+                    name = 'record-hacks-annotations'
+                    description = 'record-hacks is a Java library that will help you track "creative solutions" in your code.'
+                    url = 'https://github.com/rohitkumbhar/record-hacks'
                     licenses {
                         license {
-                            name 'MIT License'
-                            url 'https://github.com/rohitkumbhar/record-hacks/blob/master/LICENSE'
+                            name = 'MIT License'
+                            url = 'https://github.com/rohitkumbhar/record-hacks/blob/master/LICENSE'
                         }
                     }
-
                     developers {
                         developer {
-                            id 'rohitkumbhar'
-                            name 'Rohit Kumbhar'
-                            email 'rohit@kumbhar.net'
+                            id = 'rohitkumbhar'
+                            name = 'Rohit Kumbhar'
+                            email = 'rohit@kumbhar.net'
                         }
+                    }
+                    scm {
+                        connection = 'scm:git:https://github.com/rohitkumbhar/record-hacks.git'
+                        developerConnection = 'scm:git:https://github.com/rohitkumbhar/record-hacks.git'
+                        url = 'https://github.com/rohitkumbhar/record-hacks'
+                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+                    credentials {
+                        username = project.property('ossrhUsername')
+                        password = project.property('ossrhPassword')
                     }
                 }
             }
         }
     }
 
+    signing {
+        if (project.hasProperty('signing.keyId')) {
+            sign publishing.publications.mavenJava
+        }
+    }
 }
 
 project(':tests') {
     dependencies {
-        compileOnly project(':annotations')
+        implementation project(':annotations')
+        annotationProcessor project(':annotations')
     }
 }
