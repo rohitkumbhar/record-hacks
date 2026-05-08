@@ -1,10 +1,11 @@
 plugins {
     id 'java'
+    id "com.vanniktech.maven.publish" version "0.30.0" apply false
 }
 
 allprojects {
     group = 'net.kumbhar.dx'
-    version = '1.0'
+    version = '2.0'
 
     repositories {
         mavenCentral()
@@ -13,8 +14,6 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'maven-publish'
-    apply plugin: 'signing'
 
     java {
         toolchain {
@@ -44,55 +43,37 @@ subprojects {
 
 project(':annotations') {
     apply plugin: 'java-library'
+    apply plugin: "com.vanniktech.maven.publish"
 
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                pom {
-                    name = 'record-hacks-annotations'
-                    description = 'record-hacks is a Java library that will help you track "creative solutions" in your code.'
-                    url = 'https://github.com/rohitkumbhar/record-hacks'
-                    licenses {
-                        license {
-                            name = 'MIT License'
-                            url = 'https://github.com/rohitkumbhar/record-hacks/blob/master/LICENSE'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = 'rohitkumbhar'
-                            name = 'Rohit Kumbhar'
-                            email = 'rohit@kumbhar.net'
-                        }
-                    }
-                    scm {
-                        connection = 'scm:git:https://github.com/rohitkumbhar/record-hacks.git'
-                        developerConnection = 'scm:git:https://github.com/rohitkumbhar/record-hacks.git'
-                        url = 'https://github.com/rohitkumbhar/record-hacks'
-                    }
+    mavenPublishing {
+        coordinates("net.kumbhar.dx", "record-hacks-annotations", version)
+
+        pom {
+            name = 'record-hacks-annotations'
+            description = 'record-hacks is a Java library that will help you track "creative solutions" in your code.'
+            url = 'https://github.com/rohitkumbhar/record-hacks'
+            licenses {
+                license {
+                    name = 'MIT License'
+                    url = 'https://github.com/rohitkumbhar/record-hacks/blob/master/LICENSE'
                 }
             }
-        }
-        repositories {
-            maven {
-                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-                def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-                if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
-                    credentials {
-                        username = project.property('ossrhUsername')
-                        password = project.property('ossrhPassword')
-                    }
+            developers {
+                developer {
+                    id = 'rohitkumbhar'
+                    name = 'Rohit Kumbhar'
+                    email = 'rohit@kumbhar.net'
                 }
             }
+            scm {
+                connection = 'scm:git:https://github.com/rohitkumbhar/record-hacks.git'
+                developerConnection = 'scm:git:https://github.com/rohitkumbhar/record-hacks.git'
+                url = 'https://github.com/rohitkumbhar/record-hacks'
+            }
         }
-    }
 
-    signing {
-        if (project.hasProperty('signing.keyId')) {
-            sign publishing.publications.mavenJava
-        }
+        publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.DEFAULT)
+        signAllPublications()
     }
 }
 
