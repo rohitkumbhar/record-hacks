@@ -1,6 +1,7 @@
 plugins {
     id 'java'
-    id "com.vanniktech.maven.publish" version "0.30.0" apply false
+    id "com.vanniktech.maven.publish" version "0.34.0"
+    id 'signing'
 }
 
 allprojects {
@@ -19,8 +20,6 @@ subprojects {
         toolchain {
             languageVersion = JavaLanguageVersion.of(17)
         }
-        withJavadocJar()
-        withSourcesJar()
     }
 
     base {
@@ -47,6 +46,8 @@ project(':annotations') {
 
     mavenPublishing {
         coordinates("net.kumbhar.dx", "record-hacks-annotations", version)
+        publishToMavenCentral()
+        signAllPublications()
 
         pom {
             name = 'record-hacks-annotations'
@@ -71,9 +72,6 @@ project(':annotations') {
                 url = 'https://github.com/rohitkumbhar/record-hacks'
             }
         }
-
-        publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.DEFAULT)
-        signAllPublications()
     }
 }
 
