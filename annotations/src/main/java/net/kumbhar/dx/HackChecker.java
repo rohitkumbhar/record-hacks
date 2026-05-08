@@ -15,7 +15,7 @@ import java.util.Set;
 
 
 @SupportedAnnotationTypes({"net.kumbhar.dx.Hack", "net.kumbhar.dx.Hacks"})
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class HackChecker extends AbstractProcessor {
 
     @Override

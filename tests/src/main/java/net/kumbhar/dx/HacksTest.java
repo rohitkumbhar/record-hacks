@@ -14,7 +14,7 @@ public class HacksTest {
         // Ignore
     }
 
-    @Hack(description = "This hack needed to be fixed yesterday", fixBeforeDate = "2019-07-14")
+    @Hack(description = "This hack needed to be fixed yesterday", fixBeforeDate = "2030-07-14")
     public void buildFailureUsage() {
         // Ignore
     }

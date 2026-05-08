@@ -1,6 +1,10 @@
 # record-hacks
 `record-hacks` is a Java library that will help you track "creative solutions" in your code. You can use it to document the rationale
 behind some questionable choices in your code as well an aspirational date for an intended fix.
+
+### Requirements
+- Java 17 or higher (for version 2.0+)
+- Java 8 or higher (for version 1.0)
  
 This library provides:
 1. Annotations [`@Hack`](https://github.com/rohitkumbhar/record-hacks/blob/master/annotations/src/main/java/net/kumbhar/dx/Hack.java) and [`@Hacks`](https://github.com/rohitkumbhar/record-hacks/blob/master/annotations/src/main/java/net/kumbhar/dx/Hacks.java)
@@ -12,6 +16,17 @@ These annotations are will be discarded by the compiler after processing and wil
 ## Usage
 
 ### Import the library
+
+**For Java 17+ (Version 2.0):**
+```xml
+<dependency>
+  <groupId>net.kumbhar.dx</groupId>
+  <artifactId>record-hacks-annotations</artifactId>
+  <version>2.0</version>
+</dependency>
+```
+
+**For Java 8+ (Version 1.0):**
 ```xml
 <dependency>
   <groupId>net.kumbhar.dx</groupId>
